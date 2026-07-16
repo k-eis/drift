@@ -14,6 +14,7 @@ const canvasBadge = document.getElementById('canvasBadge');
 const ctx = outputCanvas.getContext('2d');
 
 const intensitySlider = document.getElementById('intensity');
+const timeSlider = document.getElementById('time');
 const spacingSlider = document.getElementById('spacing');
 const preserveSlider = document.getElementById('preserve');
 const directionSelect = document.getElementById('direction');
@@ -23,7 +24,8 @@ const spacingVal = document.getElementById('spacingVal');
 const preserveVal = document.getElementById('preserveVal');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn = document.getElementById('resetBtn');
-const presetBtns = document.querySelectorAll('.preset-btn');
+const presetBtns = document.querySelectorAll('.profile-btn');
+const timeVal = document.getElementById('timeVal');
 
 let originalImage = null;
 let originalImageData = null;
@@ -88,7 +90,7 @@ function setupCanvas(img) {
 // out: 出力バッファ, rowStart: この行の開始インデックス
 // srcX: 起点X, len: 伸ばす長さ, dir: 1=右 / -1=左
 // r,g,b,a: 線の色, w: 画像幅, bgR/G/B: 背景色（フェード先）
-function drawFadingLine(out, rowStart, srcX, len, dir, r, g, b, a, w, bgR, bgG, bgB) {
+function drawFadingLine(out, rowStart, srcX, len, dir, r, g, b, a, w, bgR, bgG, bgB, decayExponent) {
   const steps = Math.min(len, w);
   for (let d = 0; d < steps; d++) {
     const x = srcX + d * dir;
@@ -97,7 +99,7 @@ function drawFadingLine(out, rowStart, srcX, len, dir, r, g, b, a, w, bgR, bgG, 
     // 減衰カーブ：起点は濃く、離れるほど背景色へフェード
     // 累乗カーブで「最初は濃いまま少し伸び、その後急速に薄れる」線らしい消え方に
     const progress = d / steps;
-    const alpha = Math.pow(1 - progress, 1.8);
+    const alpha = Math.pow(1 - progress, decayExponent || 1.8);
 
     const i = rowStart + x * 4;
     // 既存のピクセル（背景 or 他の線）とアルファブレンド
@@ -122,6 +124,8 @@ function applyDrift() {
   const h = outputCanvas.height;
 
   const intensity = parseInt(intensitySlider.value) / 100; // 0.0 - 1.0
+  const timeMs = parseInt(timeSlider.value);                // 0-80ms：時間の翻訳
+  const timeT = timeMs / 80;                                // 0.0 - 1.0
   const spacing = parseInt(spacingSlider.value);            // 保持ラインの間隔(px)
   const preserveRatio = parseInt(preserveSlider.value) / 100; // 保持ラインの割合
   const direction = directionSelect.value;
@@ -179,7 +183,9 @@ function applyDrift() {
 
     // フェード距離：intensityが高いほど、線が長く・薄く伸びる
     // stepが大きい（＝サンプルが疎ら）ほど、その間隔を線で埋め尽くすくらい長く伸ばす
-    const fadeLen = Math.max(6, step * (0.85 + t * 0.9));
+    // フェード距離：「時間」を翻訳した長さ。TIMEが長いほど、線がより長い時間軸をかけて消える
+    // INTENSITYはサンプル間引き（何が残るか）、TIMEは減衰の速さ（どれだけ長く尾を引くか）
+    const fadeLen = Math.max(6, step * (0.85 + t * 0.9) * (0.4 + timeT * 1.6));
 
     for (let s = 0; s < sampleCount; s++) {
       const srcX = Math.min(w-1, Math.floor(s * step));
@@ -192,11 +198,14 @@ function applyDrift() {
       let dir = 1; // right
       if (direction === 'left') dir = -1;
 
+      // TIMEが短い(0ms)ほど急に消え(exponent大)、長い(80ms)ほどゆっくり尾を引く(exponent小)
+      const decayExponent = 3.2 - timeT * 2.4;
+
       if (direction === 'both') {
-        drawFadingLine(out, rowStart, srcX, fadeLen, 1, r, g, b, a, w, bgR, bgG, bgB);
-        drawFadingLine(out, rowStart, srcX, fadeLen, -1, r, g, b, a, w, bgR, bgG, bgB);
+        drawFadingLine(out, rowStart, srcX, fadeLen, 1, r, g, b, a, w, bgR, bgG, bgB, decayExponent);
+        drawFadingLine(out, rowStart, srcX, fadeLen, -1, r, g, b, a, w, bgR, bgG, bgB, decayExponent);
       } else {
-        drawFadingLine(out, rowStart, srcX, fadeLen, dir, r, g, b, a, w, bgR, bgG, bgB);
+        drawFadingLine(out, rowStart, srcX, fadeLen, dir, r, g, b, a, w, bgR, bgG, bgB, decayExponent);
       }
     }
   }
@@ -219,22 +228,48 @@ intensitySlider.addEventListener('input', () => {
   clearPresetActive();
   applyDrift();
 });
+timeSlider.addEventListener('input', () => {
+  timeVal.textContent = timeSlider.value + 'ms';
+  clearPresetActive();
+  applyDrift();
+});
 spacingSlider.addEventListener('input', () => {
   spacingVal.textContent = spacingSlider.value + 'px';
+  clearPresetActive();
   applyDrift();
 });
 preserveSlider.addEventListener('input', () => {
   preserveVal.textContent = preserveSlider.value + '%';
+  clearPresetActive();
   applyDrift();
 });
 directionSelect.addEventListener('change', applyDrift);
 monochromeCheckbox.addEventListener('change', applyDrift);
 
+// ── Drift Profile：数値ではなく「状態」でエフェクトを選ぶ
+// 各プロファイルは intensity / time / spacing / preserve の組み合わせ
+const DRIFT_PROFILES = {
+  quiet:    { intensity: 25, time: 20, spacing: 6,  preserve: 45 }, // 余白多い・線短い
+  flow:     { intensity: 40, time: 40, spacing: 4,  preserve: 25 }, // 標準的な流れ
+  memory:   { intensity: 55, time: 70, spacing: 8,  preserve: 20 }, // 淡く長い残像
+  collapse: { intensity: 85, time: 30, spacing: 3,  preserve: 8  }, // 輪郭ごと崩れる
+  ghost:    { intensity: 95, time: 60, spacing: 12, preserve: 6  }, // 極限まで希薄
+};
+
 presetBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    const val = btn.dataset.preset;
-    intensitySlider.value = val;
-    intensityVal.textContent = val + '%';
+    const profile = DRIFT_PROFILES[btn.dataset.profile];
+    if (!profile) return;
+
+    intensitySlider.value = profile.intensity;
+    intensityVal.textContent = profile.intensity + '%';
+    timeSlider.value = profile.time;
+    timeVal.textContent = profile.time + 'ms';
+    spacingSlider.value = profile.spacing;
+    spacingVal.textContent = profile.spacing + 'px';
+    preserveSlider.value = profile.preserve;
+    preserveVal.textContent = profile.preserve + '%';
+
     presetBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     applyDrift();

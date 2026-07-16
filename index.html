@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Structural Drift — k-eis</title>
+<title>Structural Drift Instrument — k-eis</title>
 <style>
 @font-face {
   font-family: 'system-mono';
@@ -264,6 +264,35 @@ select.direction-select {
 .preset-btn:hover { border-color: var(--ink); color: var(--ink); }
 .preset-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
 
+.profile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+.profile-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 9px 11px;
+  border: 1px solid var(--line-strong);
+  background: white;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.profile-btn:hover { border-color: var(--ink); }
+.profile-btn.active { background: var(--ink); border-color: var(--ink); }
+.profile-btn.active .profile-name { color: white; }
+.profile-btn.active .profile-desc { color: #b8b4a8; }
+.profile-name {
+  font: 600 11px/1 var(--sans);
+  color: var(--ink);
+}
+.profile-desc {
+  font: 400 8.5px/1 var(--sans);
+  color: #a8a498;
+}
+
 .action-buttons {
   display: flex;
   flex-direction: column;
@@ -323,9 +352,10 @@ select.direction-select {
 <div class="wrap">
   <header>
     <div>
-      <div class="filter-tag">FILTER 001</div>
+      <div class="filter-tag">INSTRUMENT 001</div>
       <h1>Structural Drift <span class="jp">構造ドリフト</span></h1>
       <div class="tagline">We do not break the structure. We translate it into time.</div>
+      <div class="tagline" style="margin-top:2px; color:#a8a498;">法則を、あなたが調律する楽器。</div>
     </div>
     <div class="version">k-eis DESIGN FILTER<br>v1.0</div>
   </header>
@@ -349,6 +379,18 @@ select.direction-select {
           <span class="val" id="intensityVal">40%</span>
         </div>
         <input type="range" id="intensity" min="0" max="100" value="40">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="name">TIME <span class="jp-small">時間の翻訳</span></span>
+          <span class="val" id="timeVal">40ms</span>
+        </div>
+        <input type="range" id="time" min="0" max="80" value="40" step="1">
+        <div style="display:flex; justify-content:space-between; margin-top:5px;">
+          <span style="font:400 8px var(--mono); color:#c4c0b4;">0ms</span>
+          <span style="font:400 8px var(--mono); color:#c4c0b4;">80ms</span>
+        </div>
       </div>
 
       <div class="ctrl-group">
@@ -386,13 +428,28 @@ select.direction-select {
       </div>
 
       <div class="ctrl-group">
-        <div class="ctrl-label"><span class="name">PRESETS <span class="jp-small">プリセット</span></span></div>
-        <div class="preset-grid">
-          <div class="preset-btn" data-preset="10">10%</div>
-          <div class="preset-btn" data-preset="30">30%</div>
-          <div class="preset-btn active" data-preset="40">40%</div>
-          <div class="preset-btn" data-preset="60">60%</div>
-          <div class="preset-btn" data-preset="90">90%</div>
+        <div class="ctrl-label"><span class="name">DRIFT PROFILE <span class="jp-small">状態を選ぶ</span></span></div>
+        <div class="profile-grid">
+          <div class="profile-btn" data-profile="quiet">
+            <span class="profile-name">Quiet</span>
+            <span class="profile-desc">余白多い・線短い</span>
+          </div>
+          <div class="profile-btn active" data-profile="flow">
+            <span class="profile-name">Flow</span>
+            <span class="profile-desc">標準的な流れ</span>
+          </div>
+          <div class="profile-btn" data-profile="memory">
+            <span class="profile-name">Memory</span>
+            <span class="profile-desc">淡く長い残像</span>
+          </div>
+          <div class="profile-btn" data-profile="collapse">
+            <span class="profile-name">Collapse</span>
+            <span class="profile-desc">輪郭ごと崩れる</span>
+          </div>
+          <div class="profile-btn" data-profile="ghost">
+            <span class="profile-name">Ghost</span>
+            <span class="profile-desc">極限まで希薄</span>
+          </div>
         </div>
       </div>
 
