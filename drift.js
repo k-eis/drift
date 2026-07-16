@@ -84,6 +84,36 @@ function setupCanvas(img) {
   originalImageData = ctx.getImageData(0, 0, w, h);
 }
 
+// 1点から指定方向にフェードしながら伸びる細い線を描く
+// out: 出力バッファ, rowStart: この行の開始インデックス
+// srcX: 起点X, len: 伸ばす長さ, dir: 1=右 / -1=左
+// r,g,b,a: 線の色, w: 画像幅, bgR/G/B: 背景色（フェード先）
+function drawFadingLine(out, rowStart, srcX, len, dir, r, g, b, a, w, bgR, bgG, bgB) {
+  const steps = Math.min(len, w);
+  for (let d = 0; d < steps; d++) {
+    const x = srcX + d * dir;
+    if (x < 0 || x >= w) break;
+
+    // 減衰カーブ：起点は濃く、離れるほど背景色へフェード
+    // 累乗カーブで「最初は濃いまま少し伸び、その後急速に薄れる」線らしい消え方に
+    const progress = d / steps;
+    const alpha = Math.pow(1 - progress, 1.8);
+
+    const i = rowStart + x * 4;
+    // 既存のピクセル（背景 or 他の線）とアルファブレンド
+    // 複数の線が重なる場合は「濃い方」を優先（線が消えずに重なって見える）
+    const existingLum = out[i]*0.299 + out[i+1]*0.587 + out[i+2]*0.114;
+    const newLumBlend = (r*alpha + bgR*(1-alpha))*0.299 + (g*alpha+bgG*(1-alpha))*0.587 + (b*alpha+bgB*(1-alpha))*0.114;
+
+    if (newLumBlend < existingLum || d === 0) {
+      out[i]   = r*alpha + bgR*(1-alpha);
+      out[i+1] = g*alpha + bgG*(1-alpha);
+      out[i+2] = b*alpha + bgB*(1-alpha);
+      out[i+3] = 255;
+    }
+  }
+}
+
 // ── コアエフェクト：Structural Drift
 function applyDrift() {
   if (!originalImageData) return;
@@ -127,34 +157,46 @@ function applyDrift() {
     }
 
     // ドリフトライン：サンプリングした少数の点を横に引き伸ばす
-    // intensityが高いほど、サンプリング元の点の数が少なくなる（＝より引き伸ばされる）
-    const sampleCount = Math.max(1, Math.round(w * (1 - intensity * 0.97)));
+    // intensityが高いほど、サンプリング元の点の数が指数的に減る（＝一本の線が画面幅近くまで伸びる）
+    // 0%→ほぼ元のまま、100%→数本の線が画面全体に伸びる極端な状態
+    const minSamples = 2;                          // 100%到達時の最小サンプル数
+    const t = intensity;                           // 0-1
+    // 対数的スケール：sampleCountを"個数"ではなく指数で直接補間する
+    // t=0 → w個(元解像度) / t=1 → minSamples個 まで滑らかに、かつ早めに効く
+    const logMax = Math.log(w);
+    const logMin = Math.log(minSamples);
+    const eased = Math.pow(t, 1.15); // ほぼ線形〜やや早め
+    const sampleCount = Math.max(minSamples, Math.round(Math.exp(logMax - (logMax-logMin) * eased)));
     const step = w / sampleCount;
+
+    // 背景（白/ベース）を先に敷いておく：線の間の余白を作るため
+    // 元画像の最も明るい色域に寄せた背景色を使う（自然な余白に見せる）
+    const bgR = 250, bgG = 250, bgB = 248;
+    for (let x = 0; x < w; x++) {
+      const i = rowStart + x * 4;
+      out[i] = bgR; out[i+1] = bgG; out[i+2] = bgB; out[i+3] = 255;
+    }
+
+    // フェード距離：intensityが高いほど、線が長く・薄く伸びる
+    // stepが大きい（＝サンプルが疎ら）ほど、その間隔を線で埋め尽くすくらい長く伸ばす
+    const fadeLen = Math.max(6, step * (0.85 + t * 0.9));
 
     for (let s = 0; s < sampleCount; s++) {
       const srcX = Math.min(w-1, Math.floor(s * step));
       const srcI = rowStart + srcX * 4;
       const r = src[srcI], g = src[srcI+1], b = src[srcI+2], a = src[srcI+3];
 
-      // このサンプル点を次のサンプル点まで引き伸ばして埋める
-      const spanStart = Math.floor(s * step);
-      const spanEnd = Math.floor((s+1) * step);
+      // 暗すぎる/明るすぎる（背景に近い）ピクセルは線として弱める
+      const luminance = (r*0.299 + g*0.587 + b*0.114) / 255;
 
-      let fillStart = spanStart, fillEnd = spanEnd;
-      if (direction === 'left') {
-        // 左方向：このピクセルより左側に伸ばす
-        fillStart = Math.max(0, spanStart - Math.floor(step));
-        fillEnd = spanStart + 1;
-      } else if (direction === 'both') {
-        const half = Math.floor(step/2);
-        fillStart = Math.max(0, srcX - half);
-        fillEnd = Math.min(w, srcX + half + 1);
-      }
-      // 'right'はデフォルト（spanStart→spanEnd、そのまま右に伸びる）
+      let dir = 1; // right
+      if (direction === 'left') dir = -1;
 
-      for (let x = fillStart; x < fillEnd && x < w; x++) {
-        const i = rowStart + x * 4;
-        out[i] = r; out[i+1] = g; out[i+2] = b; out[i+3] = a;
+      if (direction === 'both') {
+        drawFadingLine(out, rowStart, srcX, fadeLen, 1, r, g, b, a, w, bgR, bgG, bgB);
+        drawFadingLine(out, rowStart, srcX, fadeLen, -1, r, g, b, a, w, bgR, bgG, bgB);
+      } else {
+        drawFadingLine(out, rowStart, srcX, fadeLen, dir, r, g, b, a, w, bgR, bgG, bgB);
       }
     }
   }
