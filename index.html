@@ -324,25 +324,9 @@ select.direction-select {
 }
 .btn:disabled:hover { background: var(--line-strong); border-color: var(--line-strong); }
 
-/* ── フッター：ルール参照 ── */
-.rules-footer {
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-}
-.rule-item {
-  font: 400 9px/1.5 var(--mono);
-  color: #a8a498;
-}
-.rule-item .num { color: var(--accent); font-weight: 600; }
-
 @media (max-width: 860px) {
   .stage { grid-template-columns: 1fr; }
   .canvas-area { border-right: none; border-bottom: 1px solid var(--line-strong); }
-  .rules-footer { grid-template-columns: repeat(2, 1fr); }
   header { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 </style>
@@ -460,15 +444,6 @@ select.direction-select {
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="rules-footer">
-    <div class="rule-item"><span class="num">01</span> 輪郭は保持する</div>
-    <div class="rule-item"><span class="num">02</span> 内部の情報だけ水平に流す</div>
-    <div class="rule-item"><span class="num">03</span> 横方向のみ変形する</div>
-    <div class="rule-item"><span class="num">04</span> 一定間隔で正常ラインを残す</div>
-    <div class="rule-item"><span class="num">05</span> 透明部分も変形対象</div>
-    <div class="rule-item"><span class="num">06</span> ランダムではなく機械的リズム</div>
   </div>
 </div>
 
