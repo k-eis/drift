@@ -298,39 +298,42 @@ resetBtn.addEventListener('click', () => {
   fileInput.value = '';
 });
 
-// ── テーマ切り替え（5種類の着せ替え）
+// ── テーマ切り替え（4種類の着せ替え）
 const themeBtns = document.querySelectorAll('.theme-btn');
 const THEME_CLASS_MAP = {
   default: null,
-  nordic: 'theme-nordic',
-  '808': 'theme-808',
-  kumagai: 'theme-kumagai',
-  mono: 'theme-mono',
+  natural: 'theme-natural',
+  juno: 'theme-juno',
+  warmth: 'theme-warmth',
 };
 
-themeBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const themeKey = btn.dataset.theme;
-    // 既存のテーマクラスを全部外す
-    Object.values(THEME_CLASS_MAP).forEach(cls => {
-      if (cls) document.body.classList.remove(cls);
-    });
-    const cls = THEME_CLASS_MAP[themeKey];
-    if (cls) document.body.classList.add(cls);
-
-    themeBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // 好みを保存
-    try { localStorage.setItem('drift-theme', themeKey); } catch(e) {}
+function applyTheme(themeKey) {
+  if (!(themeKey in THEME_CLASS_MAP)) return;
+  // 既存のテーマクラスを全部外す
+  Object.values(THEME_CLASS_MAP).forEach(cls => {
+    if (cls) document.body.classList.remove(cls);
   });
+  const cls = THEME_CLASS_MAP[themeKey];
+  if (cls) document.body.classList.add(cls);
+
+  themeBtns.forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === themeKey);
+  });
+
+  try { localStorage.setItem('drift-theme', themeKey); } catch(e) {}
+}
+
+themeBtns.forEach(btn => {
+  btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
 });
 
-// 前回選んだテーマを復元
+// 前回選んだテーマを復元（存在しない古いキーが残っていても無視する）
 try {
   const savedTheme = localStorage.getItem('drift-theme');
-  if (savedTheme && THEME_CLASS_MAP[savedTheme] !== undefined) {
-    const btn = document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`);
-    if (btn) btn.click();
+  if (savedTheme && (savedTheme in THEME_CLASS_MAP)) {
+    applyTheme(savedTheme);
+  } else if (savedTheme) {
+    // 古いバージョンのキーが残っていた場合はクリア
+    localStorage.removeItem('drift-theme');
   }
 } catch(e) {}

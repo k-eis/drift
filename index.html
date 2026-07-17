@@ -22,55 +22,58 @@
   --canvas-check-b: #f4f3ef;
   --mono: 'Courier New', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  /* テーマ固有の追加アクセント（Standardでは未使用） */
+  --accent2: var(--accent);
+  --accent3: var(--accent);
 }
 
-/* ── THEME 02: NORDIC / 北欧風 ── */
-body.theme-nordic {
-  --bg: #fafaf9;
-  --ink: #2b2b28;
-  --line: #e2e2df;
-  --line-strong: #c9c9c4;
-  --accent: #7a8471;
-  --canvas-check-a: #f0f0ee;
-  --canvas-check-b: #fafaf9;
+/* ── THEME 02: NATURAL / 北欧ミックスカラー ── */
+body.theme-natural {
+  --bg: #f7ecec;
+  --ink: #2e332e;
+  --line: #e8d5d5;
+  --line-strong: #d9b8ba;
+  --accent: #c97b91;      /* Dusty Pink */
+  --accent2: #8CAEC6;     /* Misty Blue */
+  --accent3: #AFC2B5;     /* Sage Green */
+  --canvas-check-a: #f0dfdf;
+  --canvas-check-b: #f7ecec;
   --sans: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+  --warm-wood: #C8A878;
+  --charcoal: #4A4A4A;
 }
 
-/* ── THEME 03: TR-808 / 80年代ローランド風 ── */
-body.theme-808 {
-  --bg: #0e0c08;
-  --ink: #f0d8b0;
-  --line: #3a2f1e;
-  --line-strong: #5a4426;
-  --accent: #e8542a;
-  --canvas-check-a: #1a1510;
-  --canvas-check-b: #14100c;
+/* ── THEME 03: JUNO / Roland JUNO-106配色・派手 ── */
+body.theme-juno {
+  --bg: #7d8084;          /* JUNO本体の明るいグレー */
+  --ink: #f0eee8;
+  --line: #8e9194;
+  --line-strong: #a5a8ab;
+  --accent: #d4272c;      /* 赤 */
+  --accent2: #f5d949;     /* 黄色 */
+  --accent3: #6ec3e0;     /* 水色 */
+  --accent4: #4a7a4f;     /* 緑 */
+  --canvas-check-a: #6e7175;
+  --canvas-check-b: #7d8084;
   --mono: 'Courier New', monospace;
   --sans: 'Courier New', monospace;
+  --led-red: #ff2a2a;
+  --panel-white: #e8e6de; /* スライダー本体の白 */
 }
 
-/* ── THEME 04: KUMAGAI / 熊谷守一風 ── */
-body.theme-kumagai {
+/* ── THEME 04: WARMTH / 熊谷守一風の温かさ ── */
+body.theme-warmth {
   --bg: #e8dcc4;
   --ink: #2a2320;
   --line: #c4b28e;
   --line-strong: #9c8560;
-  --accent: #b8501f;
+  --accent: #d9631f;      /* クレヨンオレンジ */
+  --accent2: #3a5a3e;     /* 深緑 */
+  --accent3: #1f4a7a;     /* 藍 */
+  --accent4: #a5282f;     /* 朱赤 */
   --canvas-check-a: #ddd0b0;
   --canvas-check-b: #e8dcc4;
   --sans: 'Hiragino Mincho ProN', 'Yu Mincho', serif;
-}
-
-/* ── THEME 05: MONOCHROME PHOTO / モノクロ写真風 ── */
-body.theme-mono {
-  --bg: #ececec;
-  --ink: #1c1c1c;
-  --line: #c8c8c8;
-  --line-strong: #a0a0a0;
-  --accent: #4a4a4a;
-  --canvas-check-a: #e0e0e0;
-  --canvas-check-b: #ececec;
-  --sans: -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
 html, body {
@@ -167,6 +170,17 @@ h1 .jp {
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
+}
+.theme-btn .swatch-multi {
+  display: inline-flex;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.theme-btn .swatch-multi span {
+  width: 34%;
+  height: 100%;
 }
 
 /* ── メインレイアウト ── */
@@ -422,6 +436,277 @@ select.direction-select {
 }
 .btn:disabled:hover { background: var(--line-strong); border-color: var(--line-strong); }
 
+/* ── JUNO テーマ固有：Roland JUNO-106の実機配色 ── */
+body.theme-juno .filter-tag {
+  color: white;
+  background: var(--accent);
+  display: inline-block;
+  padding: 3px 8px;
+  letter-spacing: 0.12em;
+}
+body.theme-juno h1 { color: var(--ink); }
+
+/* 各コントロールグループの見出しに、実機のように複数色を分散 */
+body.theme-juno .ctrl-label .name {
+  background: var(--accent);
+  color: white;
+  padding: 3px 8px;
+  display: inline-block;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+body.theme-juno .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+/* セクションごとに色を切り替え：赤→黄→水色→緑→赤…と実機のパネルのように */
+body.theme-juno .ctrl-group:nth-of-type(4n+1) .ctrl-label .name {
+  background: var(--accent); color: white;
+}
+body.theme-juno .ctrl-group:nth-of-type(4n+1) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+body.theme-juno .ctrl-group:nth-of-type(4n+2) .ctrl-label .name {
+  background: var(--accent2); color: #2a2408;
+}
+body.theme-juno .ctrl-group:nth-of-type(4n+2) .ctrl-label .name .jp-small { color: rgba(42,36,8,0.65); }
+
+body.theme-juno .ctrl-group:nth-of-type(4n+3) .ctrl-label .name {
+  background: var(--accent3); color: #0d2a33;
+}
+body.theme-juno .ctrl-group:nth-of-type(4n+3) .ctrl-label .name .jp-small { color: rgba(13,42,51,0.65); }
+
+body.theme-juno .ctrl-group:nth-of-type(4n+4) .ctrl-label .name {
+  background: var(--accent4); color: white;
+}
+body.theme-juno .ctrl-group:nth-of-type(4n+4) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+/* LED風の赤い数値表示 */
+body.theme-juno .val {
+  color: var(--led-red);
+  text-shadow: 0 0 6px rgba(255,42,42,0.55);
+  font-weight: 700;
+}
+
+/* スライダー：白いトラックに黒いつまみ（実機のフェーダー） */
+body.theme-juno input[type="range"] {
+  background: var(--panel-white);
+  height: 5px;
+  border-radius: 1px;
+}
+body.theme-juno input[type="range"]::-webkit-slider-thumb {
+  background: #1c1c1c;
+  width: 10px;
+  height: 18px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+body.theme-juno input[type="range"]::-moz-range-thumb {
+  background: #1c1c1c;
+  width: 10px;
+  height: 18px;
+  border-radius: 2px;
+}
+
+/* Drift Profile：黄色いボタン（実機のKEY TRANSPOSE風） */
+body.theme-juno .profile-btn {
+  background: var(--panel-white);
+  border-color: var(--line-strong);
+}
+body.theme-juno .profile-btn .profile-name { color: #1c1c1c; }
+body.theme-juno .profile-btn .profile-desc { color: #5a5a55; }
+body.theme-juno .profile-btn.active {
+  background: var(--accent2);
+  border-color: var(--accent2);
+}
+body.theme-juno .profile-btn.active .profile-name { color: #1c1c1c; }
+body.theme-juno .profile-btn.active .profile-desc { color: #4a4020; }
+
+/* テーマ切り替えボタン：水色のバンクボタン風 */
+body.theme-juno .theme-btn {
+  background: var(--panel-white);
+  border-color: var(--line-strong);
+  color: #1c1c1c;
+}
+body.theme-juno .theme-btn.active {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #10333f;
+}
+
+/* DIRECTIONセレクト：白背景 */
+body.theme-juno select.direction-select {
+  background: var(--panel-white);
+  color: #1c1c1c;
+  border-color: var(--line-strong);
+}
+
+/* アクションボタン：赤 */
+body.theme-juno .btn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+body.theme-juno .btn:hover {
+  background: #b81f24;
+  border-color: #b81f24;
+}
+body.theme-juno .btn.secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+body.theme-juno .checkbox-row input { accent-color: var(--accent2); }
+body.theme-juno .canvas-badge {
+  background: var(--accent2);
+  color: #1c1c1c;
+  border-color: var(--accent2);
+  font-weight: 700;
+}
+
+/* ── NATURAL テーマ固有：カラフルな配色を各所に ── */
+body.theme-natural .profile-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+body.theme-natural input[type="range"]::-webkit-slider-thumb {
+  background: var(--accent2);
+}
+body.theme-natural input[type="range"]::-moz-range-thumb {
+  background: var(--accent2);
+}
+body.theme-natural .val { color: var(--accent); }
+body.theme-natural .btn {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #263028;
+}
+body.theme-natural .btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+body.theme-natural .checkbox-row input { accent-color: var(--accent); }
+
+/* ── WARMTH テーマ固有：熊谷守一風クレヨンタッチ ── */
+body.theme-warmth .val { color: var(--accent); font-weight: 700; }
+
+/* 全体の枠線をオレンジに統一（クレヨンで縁取ったように） */
+body.theme-warmth .stage,
+body.theme-warmth .canvas-area,
+body.theme-warmth .theme-switcher,
+body.theme-warmth header,
+body.theme-warmth .ctrl-group,
+body.theme-warmth .profile-btn,
+body.theme-warmth .theme-btn,
+body.theme-warmth select.direction-select,
+body.theme-warmth .btn {
+  border-color: var(--accent) !important;
+  border-width: 2.5px !important;
+}
+body.theme-warmth .canvas-area { border-right-color: var(--accent) !important; }
+
+/* 見出しラベルに色帯：熊谷の絵の色面のように分散 */
+body.theme-warmth .ctrl-label .name {
+  padding: 3px 8px;
+  display: inline-block;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+1) .ctrl-label .name {
+  background: var(--accent); color: white;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+1) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+body.theme-warmth .ctrl-group:nth-of-type(5n+2) .ctrl-label .name {
+  background: #e0b23a; color: #2a2408;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+2) .ctrl-label .name .jp-small { color: rgba(42,36,8,0.65); }
+
+body.theme-warmth .ctrl-group:nth-of-type(5n+3) .ctrl-label .name {
+  background: var(--accent3); color: white;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+3) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+body.theme-warmth .ctrl-group:nth-of-type(5n+4) .ctrl-label .name {
+  background: var(--accent2); color: white;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+4) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+body.theme-warmth .ctrl-group:nth-of-type(5n+5) .ctrl-label .name {
+  background: var(--accent4); color: white;
+}
+body.theme-warmth .ctrl-group:nth-of-type(5n+5) .ctrl-label .name .jp-small { color: rgba(255,255,255,0.75); }
+
+/* スライダー：太いオレンジのクレヨン線 */
+body.theme-warmth input[type="range"] {
+  height: 5px;
+  background: var(--accent);
+  border-radius: 3px;
+  opacity: 0.85;
+}
+body.theme-warmth input[type="range"]::-webkit-slider-thumb {
+  background: var(--ink);
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent);
+}
+body.theme-warmth input[type="range"]::-moz-range-thumb {
+  background: var(--ink);
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent);
+}
+
+/* Drift Profileボタン：色をランダムに分散（熊谷の絵の色面のように） */
+body.theme-warmth .profile-btn {
+  border-color: var(--line-strong);
+}
+body.theme-warmth .profile-btn:nth-of-type(5n+1).active {
+  background: var(--accent); border-color: var(--accent);
+}
+body.theme-warmth .profile-btn:nth-of-type(5n+2).active {
+  background: var(--accent2); border-color: var(--accent2);
+}
+body.theme-warmth .profile-btn:nth-of-type(5n+3).active {
+  background: var(--accent3); border-color: var(--accent3);
+}
+body.theme-warmth .profile-btn:nth-of-type(5n+4).active {
+  background: var(--accent4); border-color: var(--accent4);
+}
+body.theme-warmth .profile-btn:nth-of-type(5n+5).active {
+  background: var(--accent); border-color: var(--accent);
+}
+body.theme-warmth .profile-btn.active .profile-name { color: white; }
+body.theme-warmth .profile-btn.active .profile-desc { color: rgba(255,255,255,0.75); }
+
+/* テーマ切り替えボタンも複数色に */
+body.theme-warmth .theme-btn.active {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: white;
+}
+
+/* アクションボタン：オレンジと緑を分ける */
+body.theme-warmth #downloadBtn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+body.theme-warmth #downloadBtn:hover {
+  background: var(--accent4);
+  border-color: var(--accent4);
+}
+body.theme-warmth #resetBtn {
+  color: var(--accent2);
+  border-color: var(--accent2);
+}
+body.theme-warmth #resetBtn:hover {
+  background: rgba(58,90,62,0.08);
+}
+
+body.theme-warmth .checkbox-row input { accent-color: var(--accent); }
+
+/* タイトル・見出しに素朴な質感を */
+body.theme-warmth .filter-tag { color: var(--accent); font-weight: 700; }
+body.theme-warmth h1 { color: var(--ink); }
+
 @media (max-width: 860px) {
   .wrap { padding: 20px 16px 50px; }
 
@@ -532,21 +817,29 @@ select.direction-select {
         <span class="swatch" style="background:#f4f3ef; border:1px solid #d8d5cc;"></span>
         Standard
       </button>
-      <button class="theme-btn" data-theme="nordic">
-        <span class="swatch" style="background:#fafaf9; border:1px solid #c9c9c4;"></span>
-        Nordic
+      <button class="theme-btn" data-theme="natural">
+        <span class="swatch-multi">
+          <span style="background:#AFC2B5;"></span>
+          <span style="background:#8CAEC6;"></span>
+          <span style="background:#D7BB77;"></span>
+        </span>
+        Natural
       </button>
-      <button class="theme-btn" data-theme="808">
-        <span class="swatch" style="background:#0e0c08; border:1px solid #e8542a;"></span>
-        TR-808
+      <button class="theme-btn" data-theme="juno">
+        <span class="swatch-multi">
+          <span style="background:#d4272c;"></span>
+          <span style="background:#f5d949;"></span>
+          <span style="background:#6ec3e0;"></span>
+        </span>
+        JUNO
       </button>
-      <button class="theme-btn" data-theme="kumagai">
-        <span class="swatch" style="background:#e8dcc4; border:1px solid #b8501f;"></span>
-        Kumagai
-      </button>
-      <button class="theme-btn" data-theme="mono">
-        <span class="swatch" style="background:#ececec; border:1px solid #4a4a4a;"></span>
-        Mono Photo
+      <button class="theme-btn" data-theme="warmth">
+        <span class="swatch-multi">
+          <span style="background:#d9631f;"></span>
+          <span style="background:#3a5a3e;"></span>
+          <span style="background:#1f4a7a;"></span>
+        </span>
+        Warmth
       </button>
     </div>
   </div>
