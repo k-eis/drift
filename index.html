@@ -485,24 +485,36 @@ body.theme-juno .val {
   font-weight: 700;
 }
 
-/* スライダー：白いトラックに黒いつまみ（実機のフェーダー） */
+/* スライダー：白い目盛りライン入りトラックに黒いレバー型つまみ（実機のフェーダー） */
 body.theme-juno input[type="range"] {
-  background: var(--panel-white);
-  height: 5px;
+  background:
+    repeating-linear-gradient(
+      to right,
+      var(--panel-white) 0px, var(--panel-white) 1px,
+      #b8b6ac 1px, #b8b6ac 2px,
+      transparent 2px, transparent 9px
+    ),
+    var(--panel-white);
+  height: 6px;
   border-radius: 1px;
+  border: 1px solid #9a9890;
 }
 body.theme-juno input[type="range"]::-webkit-slider-thumb {
-  background: #1c1c1c;
-  width: 10px;
-  height: 18px;
+  background:
+    linear-gradient(to bottom, #2a2a2a 0%, #1c1c1c 45%, #1c1c1c 55%, #2a2a2a 100%);
+  width: 11px;
+  height: 22px;
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  border-top: 2px solid #f0eee8;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.3);
 }
 body.theme-juno input[type="range"]::-moz-range-thumb {
-  background: #1c1c1c;
-  width: 10px;
-  height: 18px;
+  background:
+    linear-gradient(to bottom, #2a2a2a 0%, #1c1c1c 45%, #1c1c1c 55%, #2a2a2a 100%);
+  width: 11px;
+  height: 22px;
   border-radius: 2px;
+  border-top: 2px solid #f0eee8;
 }
 
 /* Drift Profile：黄色いボタン（実機のKEY TRANSPOSE風） */
@@ -895,12 +907,30 @@ body.theme-warmth h1 { color: var(--ink); }
 
       <div class="ctrl-group">
         <div class="ctrl-label">
+          <span class="name">WOBBLE <span class="jp-small">秩序と揺らぎ</span></span>
+          <span class="val" id="wobbleVal">0%</span>
+        </div>
+        <input type="range" id="wobble" min="0" max="100" value="0">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span class="name">GRADATION <span class="jp-small">輪郭より階調</span></span>
+          <span class="val" id="gradationVal">0%</span>
+        </div>
+        <input type="range" id="gradation" min="0" max="100" value="0">
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
           <span class="name">DIRECTION <span class="jp-small">方向</span></span>
         </div>
         <select class="direction-select" id="direction">
           <option value="right" selected>Right → 右方向</option>
           <option value="left">Left → 左方向</option>
           <option value="both">Both → 両方向</option>
+          <option value="vertical">Vertical → 垂直方向</option>
+          <option value="converge">Converge → 一点収束</option>
         </select>
       </div>
 
