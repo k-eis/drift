@@ -17,14 +17,12 @@ const intensitySlider = document.getElementById('intensity');
 const timeSlider = document.getElementById('time');
 const spacingSlider = document.getElementById('spacing');
 const preserveSlider = document.getElementById('preserve');
-const wobbleSlider = document.getElementById('wobble');
 const gradationSlider = document.getElementById('gradation');
 const directionSelect = document.getElementById('direction');
 const monochromeCheckbox = document.getElementById('monochrome');
 const intensityVal = document.getElementById('intensityVal');
 const spacingVal = document.getElementById('spacingVal');
 const preserveVal = document.getElementById('preserveVal');
-const wobbleVal = document.getElementById('wobbleVal');
 const gradationVal = document.getElementById('gradationVal');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn = document.getElementById('resetBtn');
@@ -160,6 +158,17 @@ function drawFadingLineVertical(out, x, srcY, len, dir, r, g, b, a, w, h, bgR, b
   }
 }
 
+// スライダーを素早く動かしても、実際の重い描画処理は1フレームに1回に間引く
+// （カクつき対策：連続したinputイベントの最後の1回だけを実際に処理する）
+let driftRAF = null;
+function requestApplyDrift() {
+  if (driftRAF) cancelAnimationFrame(driftRAF);
+  driftRAF = requestAnimationFrame(() => {
+    applyDrift();
+    driftRAF = null;
+  });
+}
+
 // ── コアエフェクト：Structural Drift
 function applyDrift() {
   if (!originalImageData) return;
@@ -172,7 +181,7 @@ function applyDrift() {
   const timeT = timeMs / 80;                                // 0.0 - 1.0
   const spacing = parseInt(spacingSlider.value);            // 保持ラインの間隔(px)
   const preserveRatio = parseInt(preserveSlider.value) / 100; // 保持ラインの割合
-  const wobble = parseInt(wobbleSlider.value) / 100; // 0-1：秩序と揺らぎの度合い
+  const wobble = 0; // WOBBLE UIは削除済み（アプリの性格と合わないため）。内部ロジックは0固定で無効化
   const gradation = parseInt(gradationSlider.value) / 100; // 0-1：輪郭より階調（境界のなだらかさ）
   const direction = directionSelect.value;
   const mono = monochromeCheckbox.checked;
@@ -427,32 +436,27 @@ function applyDrift() {
 intensitySlider.addEventListener('input', () => {
   intensityVal.textContent = intensitySlider.value + '%';
   clearPresetActive();
-  applyDrift();
+  requestApplyDrift();
 });
 timeSlider.addEventListener('input', () => {
   timeVal.textContent = timeSlider.value + 'ms';
   clearPresetActive();
-  applyDrift();
+  requestApplyDrift();
 });
 spacingSlider.addEventListener('input', () => {
   spacingVal.textContent = spacingSlider.value + 'px';
   clearPresetActive();
-  applyDrift();
+  requestApplyDrift();
 });
 preserveSlider.addEventListener('input', () => {
   preserveVal.textContent = preserveSlider.value + '%';
   clearPresetActive();
-  applyDrift();
-});
-wobbleSlider.addEventListener('input', () => {
-  wobbleVal.textContent = wobbleSlider.value + '%';
-  clearPresetActive();
-  applyDrift();
+  requestApplyDrift();
 });
 gradationSlider.addEventListener('input', () => {
   gradationVal.textContent = gradationSlider.value + '%';
   clearPresetActive();
-  applyDrift();
+  requestApplyDrift();
 });
 directionSelect.addEventListener('change', applyDrift);
 monochromeCheckbox.addEventListener('change', applyDrift);
@@ -460,11 +464,11 @@ monochromeCheckbox.addEventListener('change', applyDrift);
 // ── Drift Profile：数値ではなく「状態」でエフェクトを選ぶ
 // 各プロファイルは intensity / time / spacing / preserve の組み合わせ
 const DRIFT_PROFILES = {
-  quiet:    { intensity: 25, time: 20, spacing: 6,  preserve: 45, wobble: 8,  gradation: 35 }, // 余白多い・線短い
-  flow:     { intensity: 40, time: 40, spacing: 4,  preserve: 25, wobble: 15, gradation: 20 }, // 標準的な流れ
-  memory:   { intensity: 55, time: 70, spacing: 8,  preserve: 20, wobble: 25, gradation: 60 }, // 淡く長い残像
-  collapse: { intensity: 85, time: 30, spacing: 3,  preserve: 8,  wobble: 45, gradation: 10 }, // 輪郭ごと崩れる
-  ghost:    { intensity: 95, time: 60, spacing: 12, preserve: 6,  wobble: 10, gradation: 50 }, // 極限まで希薄
+  quiet:    { intensity: 25, time: 20, spacing: 6,  preserve: 45, gradation: 35 }, // 余白多い・線短い
+  flow:     { intensity: 40, time: 40, spacing: 4,  preserve: 25, gradation: 20 }, // 標準的な流れ
+  memory:   { intensity: 55, time: 70, spacing: 8,  preserve: 20, gradation: 60 }, // 淡く長い残像
+  collapse: { intensity: 85, time: 30, spacing: 3,  preserve: 8,  gradation: 10 }, // 輪郭ごと崩れる
+  ghost:    { intensity: 95, time: 60, spacing: 12, preserve: 6,  gradation: 50 }, // 極限まで希薄
 };
 
 presetBtns.forEach(btn => {
@@ -480,8 +484,6 @@ presetBtns.forEach(btn => {
     spacingVal.textContent = profile.spacing + 'px';
     preserveSlider.value = profile.preserve;
     preserveVal.textContent = profile.preserve + '%';
-    wobbleSlider.value = profile.wobble;
-    wobbleVal.textContent = profile.wobble + '%';
     gradationSlider.value = profile.gradation;
     gradationVal.textContent = profile.gradation + '%';
 
@@ -496,10 +498,17 @@ function clearPresetActive() {
 }
 
 downloadBtn.addEventListener('click', () => {
-  const link = document.createElement('a');
-  link.download = 'structural-drift.png';
-  link.href = outputCanvas.toDataURL('image/png');
-  link.click();
+  try {
+    const link = document.createElement('a');
+    link.download = 'structural-drift.png';
+    link.href = outputCanvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (err) {
+    console.error('PNG保存に失敗しました:', err);
+    alert('画像の保存に失敗しました。ブラウザを再読み込みしてもう一度お試しください。');
+  }
 });
 
 resetBtn.addEventListener('click', () => {

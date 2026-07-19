@@ -485,36 +485,49 @@ body.theme-juno .val {
   font-weight: 700;
 }
 
-/* スライダー：白い目盛りライン入りトラックに黒いレバー型つまみ（実機のフェーダー） */
+/* スライダー：グレーの目盛りエリア＋白い縦線、中央は黒い溝、つまみ中央に白アクセント */
 body.theme-juno input[type="range"] {
-  background:
+  background-color: #0a0a0a;
+  background-image:
     repeating-linear-gradient(
       to right,
-      var(--panel-white) 0px, var(--panel-white) 1px,
-      #b8b6ac 1px, #b8b6ac 2px,
-      transparent 2px, transparent 9px
+      var(--panel-white) 0px, var(--panel-white) 1.5px,
+      #6e6e6c 1.5px, #6e6e6c 6px
     ),
-    var(--panel-white);
-  height: 6px;
+    repeating-linear-gradient(
+      to right,
+      var(--panel-white) 0px, var(--panel-white) 1.5px,
+      #6e6e6c 1.5px, #6e6e6c 6px
+    );
+  background-size: 100% 8px, 100% 8px;
+  background-position: top left, bottom left;
+  background-repeat: no-repeat, no-repeat;
+  height: 26px;
   border-radius: 1px;
-  border: 1px solid #9a9890;
+  border: none;
 }
 body.theme-juno input[type="range"]::-webkit-slider-thumb {
   background:
-    linear-gradient(to bottom, #2a2a2a 0%, #1c1c1c 45%, #1c1c1c 55%, #2a2a2a 100%);
-  width: 11px;
-  height: 22px;
-  border-radius: 2px;
-  border-top: 2px solid #f0eee8;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.3);
+    linear-gradient(to right,
+      #1c1c1c 0%, #1c1c1c 44%,
+      #f0eee8 44%, #f0eee8 56%,
+      #1c1c1c 56%, #1c1c1c 100%);
+  width: 12px;
+  height: 26px;
+  border-radius: 1px;
+  border: 1px solid #000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
 body.theme-juno input[type="range"]::-moz-range-thumb {
   background:
-    linear-gradient(to bottom, #2a2a2a 0%, #1c1c1c 45%, #1c1c1c 55%, #2a2a2a 100%);
-  width: 11px;
-  height: 22px;
-  border-radius: 2px;
-  border-top: 2px solid #f0eee8;
+    linear-gradient(to right,
+      #1c1c1c 0%, #1c1c1c 44%,
+      #f0eee8 44%, #f0eee8 56%,
+      #1c1c1c 56%, #1c1c1c 100%);
+  width: 12px;
+  height: 26px;
+  border-radius: 1px;
+  border: 1px solid #000;
 }
 
 /* Drift Profile：黄色いボタン（実機のKEY TRANSPOSE風） */
@@ -903,14 +916,6 @@ body.theme-warmth h1 { color: var(--ink); }
           <span class="val" id="preserveVal">25%</span>
         </div>
         <input type="range" id="preserve" min="0" max="80" value="25">
-      </div>
-
-      <div class="ctrl-group">
-        <div class="ctrl-label">
-          <span class="name">WOBBLE <span class="jp-small">秩序と揺らぎ</span></span>
-          <span class="val" id="wobbleVal">0%</span>
-        </div>
-        <input type="range" id="wobble" min="0" max="100" value="0">
       </div>
 
       <div class="ctrl-group">
