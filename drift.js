@@ -499,17 +499,63 @@ function clearPresetActive() {
 
 downloadBtn.addEventListener('click', () => {
   try {
-    const link = document.createElement('a');
-    link.download = 'structural-drift.png';
-    link.href = outputCanvas.toDataURL('image/png');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const dataUrl = outputCanvas.toDataURL('image/png');
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isIOS) {
+      // ポップアップブロッカーの影響を受けないよう、新しいタブではなくページ内オーバーレイで表示する
+      showSaveOverlay(dataUrl);
+    } else {
+      // PC / Android：通常のダウンロード方式
+      const link = document.createElement('a');
+      link.download = 'structural-drift.png';
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   } catch (err) {
     console.error('PNG保存に失敗しました:', err);
     alert('画像の保存に失敗しました。ブラウザを再読み込みしてもう一度お試しください。');
   }
 });
+
+// iOS用：画面全体を覆うオーバーレイに画像を表示し、長押しで保存できるようにする
+function showSaveOverlay(dataUrl) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(10,10,10,0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px; box-sizing: border-box;
+  `;
+
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.style.cssText = 'max-width: 100%; max-height: 75vh; border-radius: 2px;';
+
+  const hint = document.createElement('p');
+  hint.textContent = '画像を長押しして「写真に保存」を選んでください';
+  hint.style.cssText = 'color: #ccc; font-family: sans-serif; font-size: 13px; margin-top: 16px; text-align: center;';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '閉じる';
+  closeBtn.style.cssText = `
+    margin-top: 20px; padding: 10px 24px;
+    background: transparent; color: white;
+    border: 1px solid #666; border-radius: 2px;
+    font-family: sans-serif; font-size: 13px; cursor: pointer;
+  `;
+  closeBtn.addEventListener('click', () => overlay.remove());
+
+  overlay.appendChild(img);
+  overlay.appendChild(hint);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+}
 
 resetBtn.addEventListener('click', () => {
   originalImage = null;
