@@ -485,21 +485,21 @@ body.theme-juno .val {
   font-weight: 700;
 }
 
-/* スライダー：グレーの目盛りエリア＋白い縦線、中央は黒い溝、つまみ中央に白アクセント */
+/* スライダー：グレーの目盛りエリア（間隔広め）＋黒い溝、つまみは中央に途切れた縦白ライン */
 body.theme-juno input[type="range"] {
   background-color: #0a0a0a;
   background-image:
     repeating-linear-gradient(
       to right,
-      var(--panel-white) 0px, var(--panel-white) 1.5px,
-      #6e6e6c 1.5px, #6e6e6c 6px
+      var(--panel-white) 0px, var(--panel-white) 1px,
+      #6e6e6c 1px, #6e6e6c 10px
     ),
     repeating-linear-gradient(
       to right,
-      var(--panel-white) 0px, var(--panel-white) 1.5px,
-      #6e6e6c 1.5px, #6e6e6c 6px
+      var(--panel-white) 0px, var(--panel-white) 1px,
+      #6e6e6c 1px, #6e6e6c 10px
     );
-  background-size: 100% 8px, 100% 8px;
+  background-size: 100% 7px, 100% 7px;
   background-position: top left, bottom left;
   background-repeat: no-repeat, no-repeat;
   height: 26px;
@@ -508,11 +508,10 @@ body.theme-juno input[type="range"] {
 }
 body.theme-juno input[type="range"]::-webkit-slider-thumb {
   background:
-    linear-gradient(to right,
-      #1c1c1c 0%, #1c1c1c 44%,
-      #f0eee8 44%, #f0eee8 56%,
-      #1c1c1c 56%, #1c1c1c 100%);
-  width: 12px;
+    linear-gradient(to right, transparent 0%, transparent 43%, #f0eee8 43%, #f0eee8 57%, transparent 57%, transparent 100%) top / 100% 34% no-repeat,
+    linear-gradient(to right, transparent 0%, transparent 43%, #f0eee8 43%, #f0eee8 57%, transparent 57%, transparent 100%) bottom / 100% 34% no-repeat,
+    #1c1c1c;
+  width: 16px;
   height: 26px;
   border-radius: 1px;
   border: 1px solid #000;
@@ -520,11 +519,10 @@ body.theme-juno input[type="range"]::-webkit-slider-thumb {
 }
 body.theme-juno input[type="range"]::-moz-range-thumb {
   background:
-    linear-gradient(to right,
-      #1c1c1c 0%, #1c1c1c 44%,
-      #f0eee8 44%, #f0eee8 56%,
-      #1c1c1c 56%, #1c1c1c 100%);
-  width: 12px;
+    linear-gradient(to right, transparent 0%, transparent 43%, #f0eee8 43%, #f0eee8 57%, transparent 57%, transparent 100%) top / 100% 34% no-repeat,
+    linear-gradient(to right, transparent 0%, transparent 43%, #f0eee8 43%, #f0eee8 57%, transparent 57%, transparent 100%) bottom / 100% 34% no-repeat,
+    #1c1c1c;
+  width: 16px;
   height: 26px;
   border-radius: 1px;
   border: 1px solid #000;
