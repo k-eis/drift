@@ -538,11 +538,11 @@ function showSaveOverlay(dataUrl) {
   img.style.cssText = 'max-width: 100%; max-height: 75vh; border-radius: 2px;';
 
   const hint = document.createElement('p');
-  hint.textContent = '画像を長押しして「写真に保存」を選んでください';
-  hint.style.cssText = 'color: #ccc; font-family: sans-serif; font-size: 13px; margin-top: 16px; text-align: center;';
+  hint.innerHTML = '画像を長押しして「写真に保存」を選んでください<br><span style="color:#888; font-size:11px;">Press and hold the image, then tap "Save to Photos"</span>';
+  hint.style.cssText = 'color: #ccc; font-family: sans-serif; font-size: 13px; margin-top: 16px; text-align: center; line-height: 1.6;';
 
   const closeBtn = document.createElement('button');
-  closeBtn.textContent = '閉じる';
+  closeBtn.textContent = '閉じる / Close';
   closeBtn.style.cssText = `
     margin-top: 20px; padding: 10px 24px;
     background: transparent; color: white;
