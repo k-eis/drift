@@ -379,8 +379,9 @@ function applyDrift() {
   // Rule 02「輪郭よりも階調」+ Rule 04「消失が美しい」
   // 保持ライン(輪郭)とドリフトライン(消えていく部分)の境界を、なだらかな階調でつなぐ
   // gradation=0: 今までどおり境界がはっきり／gradation=100: 境界が滲むように溶け合う
+  // blendRangeはSPACINGに縛られすぎないよう、最低保証幅を設けて確実に効果が見えるようにする
   if (gradation > 0) {
-    const blendRange = Math.max(1, Math.round(spacing * gradation * 1.5));
+    const blendRange = Math.max(3, Math.round(gradation * 22) + Math.round(spacing * gradation * 0.5));
 
     if (direction === 'vertical') {
       // 列方向の距離を計算
